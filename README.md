@@ -32,7 +32,7 @@ python src/cli/interface.py
 streamlit run src/web/app.py
 ```
 
-## Setup
+## Usage
 
 #### Scrape new documentation and start CLI interface
 ```bash
