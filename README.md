@@ -34,17 +34,17 @@ streamlit run src/web/app.py
 
 ## Setup
 
-# Scrape new documentation and start CLI interface
+#### Scrape new documentation and start CLI interface
 ```bash
 python src/main.py --scrape --mode cli
 ```
 
-# Start web interface with existing data
+#### Start web interface with existing data
 ```bash
 python src/main.py --mode web
 ```
 
-# Just scrape and process new documentation
+#### Just scrape and process new documentation
 ```bash
 python src/main.py --scrape
 ```
