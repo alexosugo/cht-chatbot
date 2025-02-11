@@ -18,8 +18,12 @@ pip install -r requirements.txt
 2. Create a .env file with your API keys:
 ```
 PINECONE_API_KEY=your_key_here
-PINECONE_ENVIRONMENT=your_environment_here
-GOOGLE_API_KEY=your_key_here
+VERTEX_PROJECT=your_project_id_here
+VERTEX_LOCATION=your_project_location_here
+VERTEX_API_HOST=your_host_here
+HONEY_HIVE_API_KEY=your_key_here (optional)
+HELICONE_API_KEY=you_key_here (optional)
+FIRECRAWL_API_KEY=your_key_here
 ```
 
 3. Run the CLI interface:

@@ -14,8 +14,11 @@ def load_config() -> Dict[str, Any]:
     
     required_vars = [
         'PINECONE_API_KEY',
-        'PINECONE_ENVIRONMENT',
-        'GOOGLE_API_KEY'
+        'VERTEX_PROJECT',
+        'VERTEX_LOCATION',
+        'FIRECRAWL_API_KEY',
+        'HONEY_HIVE_API_KEY',
+        'AGENT_ID',
     ]
     
     config = {}

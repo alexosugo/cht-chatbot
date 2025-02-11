@@ -1,6 +1,6 @@
 """RAG chain implementation for the CHT Documentation Q&A Chatbot."""
 
-from langchain_google_genai import GoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_google_vertexai import VertexAI, VertexAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
@@ -14,14 +14,14 @@ class RAGChain:
     
     def __init__(
         self,
-        model_name: str = "gemini-pro",
+        model_name: str = "gemini-2.0-flash",
         temperature: float = 0.7,
         top_k: int = 5,
     ):
         """Initialize the RAG chain.
         
         Args:
-            model_name: Name of the Gemini model to use.
+            model_name: Name of the VertexAI model to use.
             temperature: Sampling temperature for generation.
             top_k: Number of similar documents to retrieve.
         """
@@ -31,19 +31,20 @@ class RAGChain:
         # Initialize Pinecone
         pinecone.init(
             api_key=config['PINECONE_API_KEY'],
-            environment=config['PINECONE_ENVIRONMENT']
+            # environment=config['PINECONE_ENVIRONMENT']
         )
         
         # Initialize LangChain components
-        self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="embedding-001",
-            google_api_key=config['GOOGLE_API_KEY']
+        self.embeddings = VertexAIEmbeddings(
+            model_name="text-embedding-005"
         )
         
-        self.llm = GoogleGenerativeAI(
-            model=model_name,
-            google_api_key=config['GOOGLE_API_KEY'],
-            temperature=temperature
+        self.llm = VertexAI(
+            model_name=model_name,
+            temperature=temperature,
+            max_output_tokens=1024,
+            top_p=0.8,
+            top_k=40
         )
         
         # Get Pinecone index

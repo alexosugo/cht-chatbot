@@ -11,10 +11,19 @@ from rich.panel import Panel
 from scraper.scraper import CHTDocScraper
 from core.document_processor import DocumentProcessor
 from core.embeddings import EmbeddingsManager
+from core.rag_chain import RAGChain
 from utils import load_config, get_scraped_docs_dir
+
+from honeyhive import HoneyHiveTracer, atrace
+
+HoneyHiveTracer.init(
+    api_key=load_config()['HONEY_HIVE_API_KEY'],
+    project=load_config()['AGENT_ID']
+)
 
 console = Console()
 
+@atrace('scrape_docs')
 async def scrape_docs() -> Optional[str]:
     """Scrape CHT documentation.
     
@@ -38,6 +47,7 @@ async def scrape_docs() -> Optional[str]:
         console.print(f"[bold red]Error scraping documentation:[/] {str(e)}")
         return None
 
+@atrace('process_documents')
 async def process_documents(docs_file: str) -> Optional[str]:
     """Process scraped documents into chunks.
     
@@ -69,6 +79,7 @@ async def process_documents(docs_file: str) -> Optional[str]:
         console.print(f"[bold red]Error processing documents:[/] {str(e)}")
         return None
 
+@atrace('generate_embeddings')
 async def generate_embeddings(chunks_file: str) -> bool:
     """Generate embeddings and store in Pinecone.
     

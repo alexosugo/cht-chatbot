@@ -1,6 +1,6 @@
 """Embeddings and vector store management for the CHT Documentation Q&A Chatbot."""
 
-import google.generativeai as genai
+from langchain_google_vertexai import VertexAIEmbeddings
 import pinecone
 from typing import Dict, List, Any
 from utils import load_config
@@ -11,7 +11,7 @@ class EmbeddingsManager:
     def __init__(
         self,
         index_name: str = "cht-docs",
-        dimension: int = 768,  # Gemini embedding dimension
+        dimension: int = 768,  # VertexAI embedding dimension
         metric: str = "cosine"
     ):
         """Initialize the embeddings manager.
@@ -24,14 +24,14 @@ class EmbeddingsManager:
         # Load configuration
         config = load_config()
         
-        # Initialize Gemini
-        genai.configure(api_key=config['GOOGLE_API_KEY'])
-        self.embedding_model = genai.GenerativeModel('embedding-001')
+        # Initialize VertexAI embeddings
+        self.embedding_model = VertexAIEmbeddings(
+            model_name="text-embedding-005"
+        )
         
         # Initialize Pinecone
         pinecone.init(
-            api_key=config['PINECONE_API_KEY'],
-            environment=config['PINECONE_ENVIRONMENT']
+            api_key=config['PINECONE_API_KEY']
         )
         
         # Create index if it doesn't exist
@@ -45,7 +45,7 @@ class EmbeddingsManager:
         self.index = pinecone.Index(index_name)
     
     async def generate_embedding(self, text: str) -> List[float]:
-        """Generate embedding for a text using Gemini.
+        """Generate embedding for a text using VertexAI.
         
         Args:
             text: Text to generate embedding for.
@@ -53,8 +53,8 @@ class EmbeddingsManager:
         Returns:
             Embedding vector as a list of floats.
         """
-        result = await self.embedding_model.embed_content(text=text)
-        return result.embedding
+        result = await self.embedding_model.aembed_query(text)
+        return result
     
     async def batch_generate_embeddings(
         self,
@@ -76,10 +76,8 @@ class EmbeddingsManager:
             batch = chunks[i:i + batch_size]
             
             # Generate embeddings for the batch
-            embeddings = await asyncio.gather(*[
-                self.generate_embedding(chunk['text'])
-                for chunk in batch
-            ])
+            texts = [chunk['text'] for chunk in batch]
+            embeddings = await self.embedding_model.aembed_documents(texts)
             
             # Add embeddings to chunks
             for chunk, embedding in zip(batch, embeddings):
@@ -145,7 +143,6 @@ class EmbeddingsManager:
 
 async def main():
     """Main function to test embeddings and vector store."""
-    import asyncio
     from document_processor import DocumentProcessor
     
     # Initialize managers
@@ -177,4 +174,5 @@ async def main():
         print(f"URL: {match.metadata.get('url')}\n")
 
 if __name__ == "__main__":
+    import asyncio
     asyncio.run(main())
