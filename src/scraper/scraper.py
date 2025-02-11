@@ -4,7 +4,7 @@ CHT documentation scraper using Firecrawl.
 """
 from typing import Dict, List
 import asyncio
-from firecrawl import Crawler
+from firecrawl import FirecrawlApp
 import json
 import os
 from datetime import datetime
@@ -19,7 +19,7 @@ class CHTDocScraper:
             base_url: The base URL of the CHT documentation.
         """
         self.base_url = base_url
-        self.crawler = Crawler(
+        self.crawler = FirecrawlApp(
             base_url=base_url,
             politeness_delay=1.0,  # 1 second delay between requests
             max_retries=3

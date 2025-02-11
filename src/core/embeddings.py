@@ -3,9 +3,7 @@
 import google.generativeai as genai
 import pinecone
 from typing import Dict, List, Any
-from ..utils import load_config
-import json
-import os
+from utils import load_config
 
 class EmbeddingsManager:
     """Manages document embeddings and vector store operations."""

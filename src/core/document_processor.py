@@ -3,7 +3,7 @@
 import json
 from typing import Dict, List, Optional
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from ..utils import clean_text, get_scraped_docs_dir
+from utils import clean_text, get_scraped_docs_dir
 import os
 
 class DocumentProcessor:
