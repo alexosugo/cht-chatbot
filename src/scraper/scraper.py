@@ -8,7 +8,7 @@ from firecrawl import FirecrawlApp
 import json
 import os
 from datetime import datetime, timezone
-from ..utils import load_config
+from utils import load_config
 
 
 class CHTDocScraper:

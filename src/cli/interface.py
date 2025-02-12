@@ -12,8 +12,8 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.prompt import Prompt
 from rich.table import Table
-from src.core.rag_chain import RAGChain
-from src.utils import load_config
+from core.rag_chain import RAGChain
+from utils import load_config
 
 
 class ChatCLI:
