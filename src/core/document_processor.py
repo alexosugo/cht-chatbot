@@ -43,9 +43,7 @@ class DocumentProcessor:
 
         if filename is None:
             # Get the most recent file
-            json_files = [
-                f for f in os.listdir(docs_dir) if f.endswith(".json")
-            ]
+            json_files = [f for f in os.listdir(docs_dir) if f.endswith(".json")]
             if not json_files:
                 raise FileNotFoundError("No scraped document files found")
             filename = max(json_files)  # Most recent by filename

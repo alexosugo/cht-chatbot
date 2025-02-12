@@ -106,9 +106,7 @@ class RAGChain:
             Dictionary containing the answer and metadata.
         """
         # Get response from chain with proper chat history handling
-        chat_history = (
-            [] if not use_history else self.memory.chat_memory.messages
-        )
+        chat_history = [] if not use_history else self.memory.chat_memory.messages
         response = await self.chain.ainvoke(
             {"question": question, "chat_history": chat_history}
         )

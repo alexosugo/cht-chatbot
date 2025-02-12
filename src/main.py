@@ -39,9 +39,7 @@ async def scrape_docs(show_progress: bool = False) -> Optional[str]:
 
             # Get the latest file
             docs_dir = get_scraped_docs_dir()
-            json_files = [
-                f for f in os.listdir(docs_dir) if f.endswith(".json")
-            ]
+            json_files = [f for f in os.listdir(docs_dir) if f.endswith(".json")]
             latest_file = max(json_files)  # Most recent by filename
 
             console.print(f"[green]✓[/] Scraped {len(results)} documents")
@@ -71,9 +69,7 @@ async def process_documents(docs_file: str) -> Optional[str]:
             chunks = processor.process_documents(docs)
 
             # Save processed chunks
-            output_file = os.path.join(
-                get_scraped_docs_dir(), "processed_chunks.json"
-            )
+            output_file = os.path.join(get_scraped_docs_dir(), "processed_chunks.json")
             processor.save_processed_chunks(chunks, output_file)
 
             console.print(f"[green]✓[/] Created {len(chunks)} chunks")
@@ -104,12 +100,12 @@ async def generate_embeddings(chunks_file: str) -> bool:
             embeddings_manager = EmbeddingsManager()
 
             # Generate embeddings and upload to Pinecone
-            embedded_chunks = (
-                await embeddings_manager.batch_generate_embeddings(chunks)
-            )
+            embedded_chunks = await embeddings_manager.batch_generate_embeddings(chunks)
             embeddings_manager.upsert_to_pinecone(embedded_chunks)
 
-            msg = f"[green]✓[/] Generated and stored embeddings for {len(chunks)} chunks"
+            msg = (
+                f"[green]✓[/] Generated and stored embeddings for {len(chunks)} chunks"
+            )
             console.print(msg)
             return True
 
@@ -134,9 +130,7 @@ def run_web():
 
 async def main():
     """Main function to run the complete pipeline."""
-    parser = argparse.ArgumentParser(
-        description="CHT Documentation Q&A Chatbot"
-    )
+    parser = argparse.ArgumentParser(description="CHT Documentation Q&A Chatbot")
     parser.add_argument(
         "--mode",
         choices=["cli", "web"],

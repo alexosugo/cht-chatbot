@@ -59,17 +59,13 @@ I can help you find information and answer questions about CHT.
         if not sources:
             return
 
-        table = Table(
-            title="Sources", show_header=True, header_style="bold magenta"
-        )
+        table = Table(title="Sources", show_header=True, header_style="bold magenta")
         table.add_column("Title", style="cyan")
         table.add_column("URL", style="blue")
         table.add_column("Relevance", justify="right", style="green")
 
         for source in sources:
-            table.add_row(
-                source["title"], source["url"], f"{source['score']:.2f}"
-            )
+            table.add_row(source["title"], source["url"], f"{source['score']:.2f}")
 
         self.console.print(table)
         self.console.print("\n")

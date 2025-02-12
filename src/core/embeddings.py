@@ -34,9 +34,7 @@ class EmbeddingsManager:
         config = load_config()
 
         # Initialize VertexAI embeddings
-        self.embedding_model = VertexAIEmbeddings(
-            model_name="text-embedding-005"
-        )
+        self.embedding_model = VertexAIEmbeddings(model_name="text-embedding-005")
 
         # Initialize Pinecone
         pinecone = Pinecone(api_key=config["PINECONE_API_KEY"])
@@ -82,9 +80,7 @@ class EmbeddingsManager:
 
         return embedded_chunks
 
-    def upsert_to_pinecone(
-        self, chunks: List[Dict[str, Any]], batch_size: int = 100
-    ):
+    def upsert_to_pinecone(self, chunks: List[Dict[str, Any]], batch_size: int = 100):
         """Upload document chunks to Pinecone using Langchain's PineconeVectorStore.
 
         Args:
@@ -100,9 +96,7 @@ class EmbeddingsManager:
             ids = [chunk["chunk_id"] for chunk in batch]
 
             # Add texts to vector store
-            self.vector_store.add_texts(
-                texts=texts, metadatas=metadatas, ids=ids
-            )
+            self.vector_store.add_texts(texts=texts, metadatas=metadatas, ids=ids)
 
             processed = min(i + batch_size, len(chunks))
             print(f"Uploaded {processed}/{len(chunks)} vectors")
@@ -131,9 +125,7 @@ class EmbeddingsManager:
             formatted_results.append(
                 {
                     "metadata": doc.metadata,
-                    "score": doc.metadata.get(
-                        "score", 1.0
-                    ),  # Score if available
+                    "score": doc.metadata.get("score", 1.0),  # Score if available
                     "text": doc.page_content,
                 }
             )
@@ -163,9 +155,7 @@ async def main():
     print("Uploaded to Pinecone")
 
     # Test query
-    results = await embeddings_manager.query_similar(
-        "How do I install CHT?", top_k=3
-    )
+    results = await embeddings_manager.query_similar("How do I install CHT?", top_k=3)
     print("\nTest Query Results:")
     for match in results:
         print(f"Score: {match.get('score', 1.0):.4f}")

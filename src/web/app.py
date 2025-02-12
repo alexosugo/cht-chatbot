@@ -193,9 +193,7 @@ def main():
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 response = loop.run_until_complete(
-                    process_question(
-                        rag_chain, question, st.session_state.messages
-                    )
+                    process_question(rag_chain, question, st.session_state.messages)
                 )
                 loop.close()
 
