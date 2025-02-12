@@ -15,7 +15,7 @@ class CHTDocScraper:
     """Scraper for Community Health Toolkit documentation."""
 
     def __init__(
-        self, base_url: str = "https://docs.communityhealthtoolkit.org"
+            self, base_url: str = "https://docs.communityhealthtoolkit.org"
     ):
         """Initialize the scraper.
 
@@ -35,59 +35,130 @@ class CHTDocScraper:
         )
         os.makedirs(self.data_dir, exist_ok=True)
 
-    async def scrape(self) -> List[Dict]:
+    async def scrape(self, show_progress: bool = True) -> List[Dict]:
         """Scrape the CHT documentation.
+
+        Args:
+            show_progress: Whether to show progress updates during scraping
 
         Returns:
             List of dictionaries containing scraped content and metadata.
         """
-        # Configure crawling rules
-        self.crawler.allow_patterns(
-            [
-                r"/docs/.*",  # Only crawl documentation pages
-            ]
-        )
+        if show_progress:
+            print(f"Starting crawl of {self.base_url}...")
 
-        # Configure content extraction
-        self.crawler.extract(
-            {
-                "title": ".//h1",  # Main title
-                "content": "//article",  # Main content
-                "section": '//nav[@aria-label="Breadcrumb"]',  # Navigation breadcrumb
-                "last_updated": "//time",  # Last updated timestamp if available
+        # Start crawling the documentation
+        crawl_result = self.crawler.async_crawl_url(
+            self.base_url,
+            params={
+                'exclude_paths': ['blog/*', 'assets/*', 'images/*'],
+                'max_depth': 5,
+                'selectors': {
+                    'title': 'h1',
+                    'content': 'article, main, .content',
+                    'text': 'p, li, td, th, code, pre'
+                }
             }
         )
+        
+        # Get the crawl ID
+        crawl_id = crawl_result['id']
+        
+        # Poll for completion
+        progress_chars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+        progress_idx = 0
+        pages_found = 0
 
-        # Start crawling
-        results = await self.crawler.run()
+        while True:
+            status = self.crawler.check_crawl_status(crawl_id)
+            current_status = status.get('status', '')
+            current_pages = len(status.get('result', []))
 
-        # Process and save results
-        processed_results = []
-        for result in results:
-            processed_doc = {
-                "url": result.url,
-                "title": result.extracted.get("title", ""),
-                "content": result.extracted.get("content", ""),
-                "section": result.extracted.get("section", ""),
-                "last_updated": result.extracted.get("last_updated", ""),
-                "scrape_timestamp": datetime.now(timezone.utc).isoformat(),
+            if current_status == 'completed':
+                if show_progress:
+                    print(f"\rCrawl completed! Found {current_pages} pages.")
+                scraped_data = self._process_crawl_result(status['result'], show_progress)
+                break
+            elif current_status == 'failed':
+                if show_progress:
+                    print("\nCrawl failed!")
+                raise Exception(f"Crawl failed: {status.get('error')}")
+            
+            if show_progress and (current_pages > pages_found):
+                pages_found = current_pages
+                print(f"\r{progress_chars[progress_idx]} Crawling... Found {pages_found} pages so far", end='')
+                progress_idx = (progress_idx + 1) % len(progress_chars)
+            
+            await asyncio.sleep(2)  # Wait before checking again
+        
+        # Save the scraped data
+        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+        output_file = os.path.join(self.data_dir, f'cht_docs_{timestamp}.json')
+        
+        with open(output_file, 'w') as f:
+            json.dump(scraped_data, f, indent=2)
+            
+        return scraped_data
+
+    def _process_crawl_result(self, crawl_result: List[Dict], show_progress: bool = True) -> List[Dict]:
+        """Process the crawl result to extract useful content.
+
+        Args:
+            crawl_result: Raw crawl result from Firecrawl
+            show_progress: Whether to show progress updates
+
+        Returns:
+            List of processed documents with extracted content
+        """
+        processed_docs = []
+        total_pages = len(crawl_result)
+        
+        if show_progress:
+            print(f"\nProcessing {total_pages} pages...")
+        
+        for i, page in enumerate(crawl_result, 1):
+            # Extract content from the page
+            content = []
+            if 'extracted' in page:
+                extracted = page['extracted']
+                
+                # Add title if available
+                if 'title' in extracted and extracted['title']:
+                    content.append(extracted['title'][0])  # Usually one title per page
+                
+                # Add main content
+                if 'content' in extracted:
+                    content.extend(extracted['content'])
+                
+                # Add other text content
+                if 'text' in extracted:
+                    content.extend(extracted['text'])
+            
+            # Create a document with metadata and content
+            doc = {
+                'url': page.get('url', ''),
+                'title': extracted.get('title', [''])[0] if 'extracted' in page and 'title' in extracted else '',
+                'content': '\n'.join(content),
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
-            processed_results.append(processed_doc)
-
-        # Save to file
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(self.data_dir, f"cht_docs_{timestamp}.json")
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(processed_results, f, ensure_ascii=False, indent=2)
-
-        return processed_results
-
+            
+            processed_docs.append(doc)
+            
+            if show_progress and i % 10 == 0:  # Show progress every 10 pages
+                print(f"\rProcessed {i}/{total_pages} pages ({(i/total_pages)*100:.1f}%)", end='')
+        
+        if show_progress:
+            print(f"\rProcessed {total_pages}/{total_pages} pages (100%)")
+        
+        return processed_docs
 
 async def main():
     """Main function to run the scraper."""
     scraper = CHTDocScraper()
-    results = await scraper.scrape()
-    print(f"Scraped {len(results)} documents")
+    results = await scraper.scrape(show_progress=True)
+    
+    # Show final summary
+    print(f"\nSaved {len(results)} documents to {scraper.data_dir}")
 
 
 if __name__ == "__main__":

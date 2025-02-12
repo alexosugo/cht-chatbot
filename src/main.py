@@ -25,7 +25,7 @@ HoneyHiveTracer.init(
 console = Console()
 
 
-@atrace("scrape_docs")
+@atrace
 async def scrape_docs() -> Optional[str]:
     """Scrape CHT documentation.
 
@@ -52,7 +52,7 @@ async def scrape_docs() -> Optional[str]:
         return None
 
 
-@atrace("process_documents")
+@atrace
 async def process_documents(docs_file: str) -> Optional[str]:
     """Process scraped documents into chunks.
 
@@ -84,7 +84,7 @@ async def process_documents(docs_file: str) -> Optional[str]:
         return None
 
 
-@atrace("generate_embeddings")
+@atrace
 async def generate_embeddings(chunks_file: str) -> bool:
     """Generate embeddings and store in Pinecone.
 
