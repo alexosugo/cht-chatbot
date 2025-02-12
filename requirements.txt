@@ -1,9 +1,9 @@
 langchain>=0.1.0
+langchain-core>=0.1.0
 langchain-google-vertexai>=0.1.0
-pinecone-client>=3.0.0
+langchain-pinecone>=0.2.2
 python-dotenv>=1.0.0
 firecrawl>=1.0.0
 streamlit>=1.30.0
 rich>=13.7.0
-honeyhive>=0.4.0
-helicone>=0.3.0
+honeyhive>=0.2.28
