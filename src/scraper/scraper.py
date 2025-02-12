@@ -2,81 +2,125 @@
 """
 CHT documentation scraper using Firecrawl.
 """
-from typing import Dict, List
+from typing import Dict, List, Any
 import asyncio
-from firecrawl import FirecrawlApp
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
+from langchain_community.document_loaders.firecrawl import FireCrawlLoader
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 class CHTDocScraper:
     """Scraper for Community Health Toolkit documentation."""
-    
+
     def __init__(self, base_url: str = "https://docs.communityhealthtoolkit.org"):
         """Initialize the scraper.
-        
+
         Args:
             base_url: The base URL of the CHT documentation.
         """
         self.base_url = base_url
-        self.crawler = FirecrawlApp(
-            base_url=base_url,
-            politeness_delay=1.0,  # 1 second delay between requests
-            max_retries=3
-        )
-        
+
         # Create data directory if it doesn't exist
-        self.data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "scraped_docs")
+        self.data_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            "data",
+            "scraped_docs",
+        )
         os.makedirs(self.data_dir, exist_ok=True)
-        
-    async def scrape(self) -> List[Dict]:
-        """Scrape the CHT documentation.
-        
+
+    def crawl(self) -> List[Dict]:
+        """Crawl the CHT documentation.
+
         Returns:
             List of dictionaries containing scraped content and metadata.
         """
-        # Configure crawling rules
-        self.crawler.allow_patterns([
-            r"/docs/.*",  # Only crawl documentation pages
-        ])
-        
-        # Configure content extraction
-        self.crawler.extract({
-            'title': './/h1',  # Main title
-            'content': '//article',  # Main content
-            'section': '//nav[@aria-label="Breadcrumb"]',  # Navigation breadcrumb
-            'last_updated': '//time',  # Last updated timestamp if available
-        })
-        
-        # Start crawling
-        results = await self.crawler.run()
-        
-        # Process and save results
-        processed_results = []
-        for result in results:
+        loader = FireCrawlLoader(
+            api_key=os.getenv("FIRECRAWL_API_KEY"),
+            url=self.base_url,
+            mode="crawl",
+            params={
+                "limit": 1,
+                "scrapeOptions": {
+                    "onlyMainContent": True,
+                },
+            },
+        )
+
+        data = loader.load()
+        print("Data returned is \n\n", data)
+
+        scraped_data = self._process_crawl_result(data)
+        print("Processed result is \n\n", scraped_data)
+
+        # Save the scraped data
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        output_file = os.path.join(self.data_dir, f"cht_docs_{timestamp}.json")
+
+        with open(output_file, "w") as f:
+            json.dump(scraped_data, f, indent=2)
+
+        return scraped_data
+
+    def _process_crawl_result(
+        self, crawl_result: List[Any], show_progress: bool = True
+    ) -> List[Dict]:
+        """Process the crawl result to extract useful content.
+
+        Args:
+            crawl_result: Raw crawl result containing Document objects
+            show_progress: Whether to show progress updates
+
+        Returns:
+            List of processed documents with extracted content
+        """
+        processed_docs = []
+        total_pages = len(crawl_result)
+
+        if show_progress:
+            print(f"\nProcessing {total_pages} pages...")
+
+        for i, doc in enumerate(crawl_result, 1):
+            # Extract content and metadata from the Document object
+            metadata = doc.metadata
+            content = doc.page_content
+
+            # Create a document with metadata and content
             processed_doc = {
-                'url': result.url,
-                'title': result.extracted.get('title', ''),
-                'content': result.extracted.get('content', ''),
-                'section': result.extracted.get('section', ''),
-                'last_updated': result.extracted.get('last_updated', ''),
-                'scrape_timestamp': datetime.utcnow().isoformat()
+                "url": metadata.get("url", ""),
+                "title": metadata.get("title", ""),
+                "content": content,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
-            processed_results.append(processed_doc)
-            
-        # Save to file
-        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        output_file = os.path.join(self.data_dir, f'cht_docs_{timestamp}.json')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(processed_results, f, ensure_ascii=False, indent=2)
-            
-        return processed_results
+
+            processed_docs.append(processed_doc)
+
+            if show_progress:
+                if i == 1:
+                    print("\nStarting content extraction...")
+                if i % 5 == 0:  # Show progress more frequently
+                    print(
+                        f"\rProcessing content: {i}/{total_pages} pages ({(i/total_pages)*100:.1f}%) - Current: {processed_doc['title']}",
+                        end="",
+                    )
+
+        if show_progress:
+            print(f"\rProcessed {total_pages}/{total_pages} pages (100%)")
+
+        return processed_docs
+
 
 async def main():
     """Main function to run the scraper."""
     scraper = CHTDocScraper()
-    results = await scraper.scrape()
-    print(f"Scraped {len(results)} documents")
+    results = scraper.crawl()
+
+    # Show final summary
+    print(f"\nSaved {len(results)} documents to {scraper.data_dir}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
