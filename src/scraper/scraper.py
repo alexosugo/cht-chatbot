@@ -45,19 +45,18 @@ class CHTDocScraper:
             List of dictionaries containing scraped content and metadata.
         """
         if show_progress:
-            print(f"Starting crawl of {self.base_url}...")
+            print("Initializing crawler with parameters:")
+            print("  - Base URL:", self.base_url)
+            print("  - Page limit: 100")
+            print("  - Formats: markdown, html")
+            print("\nStarting crawl...")
 
         # Start crawling the documentation
         crawl_result = self.crawler.async_crawl_url(
             self.base_url,
-            params={
-                'exclude_paths': ['blog/*', 'assets/*', 'images/*'],
-                'max_depth': 5,
-                'selectors': {
-                    'title': 'h1',
-                    'content': 'article, main, .content',
-                    'text': 'p, li, td, th, code, pre'
-                }
+            params = {
+                'scrapeOptions': {'formats': ['markdown', 'html']},
+                'limit': 1,
             }
         )
         
@@ -70,24 +69,47 @@ class CHTDocScraper:
         pages_found = 0
 
         while True:
-            status = self.crawler.check_crawl_status(crawl_id)
-            current_status = status.get('status', '')
-            current_pages = len(status.get('result', []))
+            try:
+                status = self.crawler.check_crawl_status(crawl_id)
+                print('Crawl status:', status)
 
-            if current_status == 'completed':
                 if show_progress:
-                    print(f"\rCrawl completed! Found {current_pages} pages.")
-                scraped_data = self._process_crawl_result(status['result'], show_progress)
-                break
-            elif current_status == 'failed':
-                if show_progress:
-                    print("\nCrawl failed!")
-                raise Exception(f"Crawl failed: {status.get('error')}")
+                    print("\nReceived status:", status)  # Debug line
+                
+                current_status = status.get('status', '')
+                result = status.get('data')
+                
+                if result is None:
+                    if show_progress:
+                        print("Warning: No 'data' field in status response")
+                    current_pages = 0
+                else:
+                    current_pages = len(result)
+
+                if current_status == 'completed':
+                    if show_progress:
+                        print(f"\rCrawl completed! Found {current_pages} pages.")
+                    if not result:
+                        raise Exception("Crawl completed but no results were returned")
+                    scraped_data = self._process_crawl_result(result, show_progress)
+                    break
+                elif current_status == 'failed':
+                    if show_progress:
+                        print("\nCrawl failed!")
+                    raise Exception(f"Crawl failed: {status.get('error')}")
+            except Exception as e:
+                print(f"\nError checking crawl status: {str(e)}")
+                raise
             
-            if show_progress and (current_pages > pages_found):
-                pages_found = current_pages
-                print(f"\r{progress_chars[progress_idx]} Crawling... Found {pages_found} pages so far", end='')
+            if show_progress:
+                # Always update the progress indicator
+                print(f"\r{progress_chars[progress_idx]} Scraping CHT documentation... Status: {current_status}, Pages found: {current_pages}", end='')
                 progress_idx = (progress_idx + 1) % len(progress_chars)
+                
+                # Show new pages found
+                if current_pages > pages_found:
+                    print(f"\n  → Found {current_pages - pages_found} new pages")
+                    pages_found = current_pages
             
             await asyncio.sleep(2)  # Wait before checking again
         
@@ -144,8 +166,11 @@ class CHTDocScraper:
             
             processed_docs.append(doc)
             
-            if show_progress and i % 10 == 0:  # Show progress every 10 pages
-                print(f"\rProcessed {i}/{total_pages} pages ({(i/total_pages)*100:.1f}%)", end='')
+            if show_progress:
+                if i == 1:
+                    print("\nStarting content extraction...")
+                if i % 5 == 0:  # Show progress more frequently
+                    print(f"\rProcessing content: {i}/{total_pages} pages ({(i/total_pages)*100:.1f}%) - Current: {doc['title']}", end='')
         
         if show_progress:
             print(f"\rProcessed {total_pages}/{total_pages} pages (100%)")

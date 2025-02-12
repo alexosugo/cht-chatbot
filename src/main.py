@@ -26,7 +26,7 @@ console = Console()
 
 
 @atrace
-async def scrape_docs() -> Optional[str]:
+async def scrape_docs(show_progress: bool = False) -> Optional[str]:
     """Scrape CHT documentation.
 
     Returns:
@@ -35,7 +35,7 @@ async def scrape_docs() -> Optional[str]:
     try:
         with console.status("[bold yellow]Scraping CHT documentation..."):
             scraper = CHTDocScraper()
-            results = await scraper.scrape()
+            results = await scraper.scrape(show_progress=show_progress)
 
             # Get the latest file
             docs_dir = get_scraped_docs_dir()
@@ -156,7 +156,7 @@ async def main():
 
         if args.scrape:
             # Run the complete pipeline
-            docs_file = await scrape_docs()
+            docs_file = await scrape_docs(show_progress=True)
             if not docs_file:
                 return
 
