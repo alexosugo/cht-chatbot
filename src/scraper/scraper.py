@@ -50,11 +50,11 @@ class CHTDocCrawler:
             },
         )
 
+        # Start the crawl
         data = loader.load()
-        print("Data returned is \n\n", data)
 
+        # Extract the scraped data
         scraped_data = self._process_crawl_result(data)
-        print("Processed result is \n\n", scraped_data)
 
         # Save the scraped data
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

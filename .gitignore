@@ -16,9 +16,11 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Virtual Environment
 venv/
@@ -36,12 +38,9 @@ ENV/
 *~
 
 # Project specific
-data/
+data/*
+!data/.gitkeep
 *.log
-logs/
-*.json
-!package.json
-!package-lock.json
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -61,8 +60,10 @@ htmlcov/
 coverage.xml
 *.cover
 .hypothesis/
+nosetests.xml
+coverage/
 
-# Distribution
+# Distribution / Packaging
 *.manifest
 *.spec
 pip-log.txt
@@ -72,7 +73,18 @@ pip-delete-this-directory.txt
 docs/_build/
 site/
 
-# mypy
+# Type checking
 .mypy_cache/
 .dmypy.json
 dmypy.json
+.pyre/
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+.idea_modules/

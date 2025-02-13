@@ -35,7 +35,7 @@ async def crawl_docs(show_progress: bool = False) -> Optional[str]:
     try:
         with console.status("[bold yellow]Scraping CHT documentation..."):
             crawler = CHTDocCrawler()
-            results = await crawler.crawl(show_progress=show_progress)
+            results = crawler.crawl()
 
             # Get the latest file
             docs_dir = get_scraped_docs_dir()
