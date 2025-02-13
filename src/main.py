@@ -9,7 +9,7 @@ from typing import Optional
 from rich.console import Console
 from rich.panel import Panel
 
-from scraper.scraper import CHTDocScraper
+from scraper.scraper import CHTDocCrawler
 from core.document_processor import DocumentProcessor
 from core.embeddings import EmbeddingsManager
 
@@ -26,7 +26,7 @@ console = Console()
 
 
 @atrace
-async def scrape_docs(show_progress: bool = False) -> Optional[str]:
+async def crawl_docs(show_progress: bool = False) -> Optional[str]:
     """Scrape CHT documentation.
 
     Returns:
@@ -34,8 +34,8 @@ async def scrape_docs(show_progress: bool = False) -> Optional[str]:
     """
     try:
         with console.status("[bold yellow]Scraping CHT documentation..."):
-            scraper = CHTDocScraper()
-            results = await scraper.scrape(show_progress=show_progress)
+            crawler = CHTDocCrawler()
+            results = await crawler.crawl(show_progress=show_progress)
 
             # Get the latest file
             docs_dir = get_scraped_docs_dir()
@@ -150,7 +150,7 @@ async def main():
 
         if args.scrape:
             # Run the complete pipeline
-            docs_file = await scrape_docs(show_progress=True)
+            docs_file = await crawl_docs(show_progress=True)
             if not docs_file:
                 return
 

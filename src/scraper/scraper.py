@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-class CHTDocScraper:
+class CHTDocCrawler:
     """Scraper for Community Health Toolkit documentation."""
 
     def __init__(self, base_url: str = "https://docs.communityhealthtoolkit.org"):
@@ -115,7 +115,7 @@ class CHTDocScraper:
 
 async def main():
     """Main function to run the scraper."""
-    scraper = CHTDocScraper()
+    scraper = CHTDocCrawler()
     results = scraper.crawl()
 
     # Show final summary
