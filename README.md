@@ -10,12 +10,18 @@ A RAG-based Q&A chatbot for the Community Health Toolkit (CHT) documentation.
 
 ## Setup
 
-1. Install dependencies:
+1. Clone the repository and navigate to the project directory:
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/yourusername/cht-chatbot.git
+cd cht-chatbot
 ```
 
-2. Create a .env file with your API keys:
+2. Install the project in development mode:
+```bash
+pip install -e .
+```
+
+3. Create a .env file with your API keys:
 ```
 PINECONE_API_KEY=your_key_here
 VERTEX_PROJECT=your_project_id_here
@@ -26,12 +32,16 @@ HELICONE_API_KEY=you_key_here (optional)
 FIRECRAWL_API_KEY=your_key_here
 ```
 
-3. Run the CLI interface:
+## Running the Application
+
+After installation, you can run the application in several ways:
+
+1. Run the CLI interface:
 ```bash
 python src/cli/interface.py
 ```
 
-4. Run the web interface:
+2. Run the web interface:
 ```bash
 streamlit run src/web/app.py
 ```

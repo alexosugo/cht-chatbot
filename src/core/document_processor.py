@@ -82,11 +82,11 @@ class DocumentProcessor:
                     "metadata": {
                         "url": doc["url"],
                         "title": doc["title"],
-                        "section": doc["section"],
                         "chunk_index": i,
                         "total_chunks": len(chunks),
                     },
                 }
+                print("Chunk document: ", chunk_doc)
                 processed_chunks.append(chunk_doc)
 
         return processed_chunks
