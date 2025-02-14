@@ -4,6 +4,7 @@ import json
 from typing import Dict, List, Optional
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from utils import clean_text, get_scraped_docs_dir
+from honeyhive import trace
 import os
 
 
@@ -30,6 +31,7 @@ class DocumentProcessor:
             separators=["\n\n", "\n", ". ", " ", ""],
         )
 
+    @trace
     def load_scraped_docs(self, filename: Optional[str] = None) -> List[Dict]:
         """Load scraped documents from JSON file.
 
@@ -52,6 +54,7 @@ class DocumentProcessor:
         with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
 
+    @trace
     def process_documents(self, documents: List[Dict]) -> List[Dict]:
         """Process documents into chunks suitable for embedding.
 
@@ -91,6 +94,7 @@ class DocumentProcessor:
 
         return processed_chunks
 
+    @trace
     def save_processed_chunks(self, chunks: List[Dict], output_file: str):
         """Save processed chunks to a JSON file.
 
