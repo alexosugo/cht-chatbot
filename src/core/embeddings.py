@@ -41,7 +41,7 @@ class EmbeddingsManager:
 
         # Create index if it doesn't exist
         if index_name not in pinecone.list_indexes().names():
-            print('Index not found, creating it...')
+            print("Index not found, creating it...")
             pinecone.create_index(
                 name=index_name,
                 dimension=dimension,
@@ -51,8 +51,6 @@ class EmbeddingsManager:
                     region="us-east-1"
                 )
             )
-        # else:
-        #     pinecone.Index(index_name)
 
         print(f"Using Pinecone index: {index_name}")
 
@@ -172,6 +170,16 @@ async def main():
         print(f"Score: {match.get('score', 1.0):.4f}")
         print(f"Title: {match['metadata'].get('title')}")
         print(f"URL: {match['metadata'].get('url')}\n")
+
+async def test_query():
+    embeddings_manager = EmbeddingsManager()
+    results = await embeddings_manager.query_similar("What can the CHT do?", top_k=3)
+    print("\nTest Query Results:")
+    for match in results:
+        print(f"Score: {match.get('score', 1.0):.4f}")
+        print(f"Title: {match['metadata'].get('title')}")
+        print(f"URL: {match['metadata'].get('url')}\n")
+        print(match)
 
 
 if __name__ == "__main__":
