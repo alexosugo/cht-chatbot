@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 """Command-line interface for the CHT Documentation Q&A Chatbot."""
 
-import os
-import sys
-
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 import asyncio
 from rich.console import Console
@@ -32,20 +27,20 @@ class ChatCLI:
     def print_welcome(self):
         """Print welcome message and instructions."""
         welcome_text = """
-# CHT Documentation Assistant
+            # CHT Documentation Assistant
 
-Welcome to the Community Health Toolkit Documentation Assistant! 
-I can help you find information and answer questions about CHT.
+            Welcome to the Community Health Toolkit Documentation Assistant! 
+            I can help you find information and answer questions about CHT.
 
-## Commands:
-- Type your question and press Enter
-- Type 'clear' to clear the conversation history
-- Type 'exit' or 'quit' to end the session
+            ## Commands:
+            - Type your question and press Enter
+            - Type 'clear' to clear the conversation history
+            - Type 'exit' or 'quit' to end the session
 
-## Tips:
-- Be specific in your questions
-- I'll provide source links for my answers
-- You can ask follow-up questions
+            ## Tips:
+            - Be specific in your questions
+            - I'll provide source links for my answers
+            - You can ask follow-up questions
         """
         self.console.print(Markdown(welcome_text))
         self.console.print("\n")
