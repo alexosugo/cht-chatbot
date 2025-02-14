@@ -4,7 +4,7 @@ Handles embedding generation and vector store operations using Pinecone."""
 
 from langchain_google_vertexai import VertexAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
-from pinecone import Pinecone
+from pinecone import Pinecone, ServerlessSpec
 from typing import Dict, List, Any, Optional
 from utils import load_config
 
@@ -39,15 +39,26 @@ class EmbeddingsManager:
         # Initialize Pinecone
         pinecone = Pinecone(api_key=config["PINECONE_API_KEY"])
 
-        index = None
-
         # Create index if it doesn't exist
-        if index_name not in pinecone.list_indexes():
-            index = pinecone.Index(index_name)
+        if index_name not in pinecone.list_indexes().names():
+            print('Index not found, creating it...')
+            pinecone.create_index(
+                name=index_name,
+                dimension=dimension,
+                metric=metric,
+                spec=ServerlessSpec(
+                    cloud="aws",
+                    region="us-east-1"
+                )
+            )
+        # else:
+        #     pinecone.Index(index_name)
+
+        print(f"Using Pinecone index: {index_name}")
 
         # Initialize PineconeVectorStore
         self.vector_store = PineconeVectorStore(
-            index=index, embedding=self.embedding_model, namespace=namespace
+            index_name=index_name, embedding=self.embedding_model, namespace=namespace
         )
 
     async def batch_generate_embeddings(
