@@ -8,6 +8,7 @@ from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone
 from typing import Dict, Any
 from utils import load_config
+from honeyhive import atrace
 
 
 class RAGChain:
@@ -47,7 +48,7 @@ class RAGChain:
 
         # Get Pinecone index
         self.index_name = "cht-docs"
-        if self.index_name not in pinecone.list_indexes():
+        if self.index_name not in pinecone.list_indexes().names():
             raise ValueError(f"Index '{self.index_name}' not found in Pinecone")
 
         # Initialize vector store with Langchain's PineconeVectorStore
@@ -60,7 +61,9 @@ class RAGChain:
 
         # Setup memory
         self.memory = ConversationBufferMemory(
-            memory_key="chat_history", return_messages=True
+            memory_key="chat_history",
+            return_messages=True,
+            output_key="answer"  # Explicitly set which key to store in memory
         )
 
         # Setup prompt templates
@@ -93,6 +96,7 @@ class RAGChain:
             return_source_documents=True,
         )
 
+    @atrace
     async def answer_question(
         self, question: str, use_history: bool = True
     ) -> Dict[str, Any]:
@@ -132,6 +136,7 @@ class RAGChain:
 
         return result
 
+    @atrace
     def clear_history(self):
         """Clear the conversation history."""
         self.memory.clear()

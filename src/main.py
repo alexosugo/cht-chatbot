@@ -17,10 +17,15 @@ from utils import load_config, get_scraped_docs_dir
 
 from honeyhive import HoneyHiveTracer, atrace
 
+# Initialize HoneyHive tracing
+config = load_config()
 HoneyHiveTracer.init(
-    api_key=load_config()["HONEY_HIVE_API_KEY"],
-    project=load_config()["AGENT_ID"],
+    api_key=config["HONEY_HIVE_API_KEY"],
+    project=config["AGENT_ID"],
 )
+
+# Debug logging
+print(f"HoneyHive initialized with project: {config['AGENT_ID']}")
 
 console = Console()
 
@@ -113,15 +118,15 @@ async def generate_embeddings(chunks_file: str) -> bool:
         console.print(f"[bold red]Error generating embeddings:[/] {str(e)}")
         return False
 
-
-def run_cli():
+@atrace
+async def run_cli():
     """Run the CLI interface."""
     from cli.interface import main as cli_main
 
-    cli_main()
+    await cli_main()
 
-
-def run_web():
+@atrace
+async def run_web():
     """Run the web interface."""
     import subprocess
 
@@ -164,9 +169,9 @@ async def main():
 
         # Run the selected interface
         if args.mode == "web":
-            run_web()
+            await run_web()
         else:
-            run_cli()
+            await run_cli()
 
     except Exception as e:
         console.print(f"[bold red]Fatal error:[/] {str(e)}")
