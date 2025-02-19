@@ -46,10 +46,7 @@ class EmbeddingsManager:
                 name=index_name,
                 dimension=dimension,
                 metric=metric,
-                spec=ServerlessSpec(
-                    cloud="aws",
-                    region="us-east-1"
-                )
+                spec=ServerlessSpec(cloud="aws", region="us-east-1"),
             )
 
         print(f"Using Pinecone index: {index_name}")
@@ -170,6 +167,7 @@ async def main():
         print(f"Score: {match.get('score', 1.0):.4f}")
         print(f"Title: {match['metadata'].get('title')}")
         print(f"URL: {match['metadata'].get('url')}\n")
+
 
 async def test_query():
     embeddings_manager = EmbeddingsManager()
