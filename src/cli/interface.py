@@ -99,7 +99,7 @@ class ChatCLI:
                 self.console.print("\n")
 
                 # Print sources
-                self.print_sources(response["sources"])
+                # self.print_sources(response["sources"])
 
             except Exception as e:
                 self.console.print(f"[bold red]Error:[/] {str(e)}")

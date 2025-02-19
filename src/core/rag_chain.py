@@ -113,23 +113,23 @@ class RAGChain:
             {"question": question, "chat_history": chat_history}
         )
 
-        # Extract source documents
-        sources = []
-        for doc in response["source_documents"]:
-            sources.append(
-                {
-                    "title": doc.metadata.get("title", "Unknown"),
-                    "url": doc.metadata.get("url", ""),
-                    "section": doc.metadata.get("section", ""),
-                    "score": doc.metadata.get("score", 0.0),
-                }
-            )
+        # # Extract source documents
+        # sources = []
+        # for doc in response["source_documents"]:
+        #     sources.append(
+        #         {
+        #             "title": doc.metadata.get("title", "Unknown"),
+        #             "url": doc.metadata.get("url", ""),
+        #             "section": doc.metadata.get("section", ""),
+        #             "score": doc.metadata.get("score", 0.0),
+        #         }
+        #     )
 
         # Prepare response
         result = {
             "question": question,
             "answer": response["answer"],
-            "sources": sources,
+            # "sources": sources,
         }
 
         return result

@@ -18,8 +18,9 @@ def load_config() -> Dict[str, Any]:
         "VERTEX_PROJECT",
         "VERTEX_LOCATION",
         "FIRECRAWL_API_KEY",
-        "HONEY_HIVE_API_KEY",
         "AGENT_ID",
+        "LANGSMITH_API_KEY",
+        "LANGSMITH_PROJECT",
     ]
 
     config = {}

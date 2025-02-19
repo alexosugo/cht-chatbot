@@ -43,7 +43,7 @@ class CHTDocCrawler:
             url=self.base_url,
             mode="crawl",
             params={
-                "limit": 1,
+                "limit": 500,
                 "scrapeOptions": {
                     "onlyMainContent": True,
                 },
