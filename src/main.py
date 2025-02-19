@@ -12,25 +12,12 @@ from rich.panel import Panel
 from scraper.scraper import CHTDocCrawler
 from core.document_processor import DocumentProcessor
 from core.embeddings import EmbeddingsManager
-
 from utils import load_config, get_scraped_docs_dir
 
-from honeyhive import HoneyHiveTracer, atrace
-
-# Initialize HoneyHive tracing
-config = load_config()
-HoneyHiveTracer.init(
-    api_key=config["HONEY_HIVE_API_KEY"],
-    project=config["AGENT_ID"],
-)
-
-# Debug logging
-print(f"HoneyHive initialized with project: {config['AGENT_ID']}")
 
 console = Console()
 
 
-@atrace
 async def crawl_docs(show_progress: bool = False) -> Optional[str]:
     """Scrape CHT documentation.
 
@@ -55,7 +42,6 @@ async def crawl_docs(show_progress: bool = False) -> Optional[str]:
         return None
 
 
-@atrace
 async def process_documents(docs_file: str) -> Optional[str]:
     """Process scraped documents into chunks.
 
@@ -85,7 +71,6 @@ async def process_documents(docs_file: str) -> Optional[str]:
         return None
 
 
-@atrace
 async def generate_embeddings(chunks_file: str) -> bool:
     """Generate embeddings and store in Pinecone.
 
@@ -118,14 +103,14 @@ async def generate_embeddings(chunks_file: str) -> bool:
         console.print(f"[bold red]Error generating embeddings:[/] {str(e)}")
         return False
 
-@atrace
+
 async def run_cli():
     """Run the CLI interface."""
     from cli.interface import main as cli_main
 
     await cli_main()
 
-@atrace
+
 async def run_web():
     """Run the web interface."""
     import subprocess

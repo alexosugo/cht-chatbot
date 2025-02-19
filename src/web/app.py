@@ -1,14 +1,15 @@
 """Streamlit web interface for the CHT Documentation Q&A Chatbot."""
 
-import streamlit as st
-import asyncio
-from typing import Dict, Any
 import sys
 import os
 
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
+
+import streamlit as st
+import asyncio
+from typing import Dict, Any
 from src.core.rag_chain import RAGChain
 from src.utils import load_config
 

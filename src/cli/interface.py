@@ -9,7 +9,6 @@ from rich.table import Table
 from core.rag_chain import RAGChain
 from utils import load_config
 import sys
-from honeyhive import atrace, trace
 
 
 class ChatCLI:
@@ -25,7 +24,6 @@ class ChatCLI:
         self.assistant_style = "bold green"
         self.source_style = "dim"
 
-    @trace
     def print_welcome(self):
         """Print welcome message and instructions."""
         welcome_text = """
@@ -47,7 +45,6 @@ class ChatCLI:
         self.console.print(Markdown(welcome_text))
         self.console.print("\n")
 
-    @trace
     def print_sources(self, sources):
         """Print source information in a table.
 
@@ -68,7 +65,6 @@ class ChatCLI:
         self.console.print(table)
         self.console.print("\n")
 
-    @trace
     def format_answer(self, answer: str) -> str:
         """Format the answer text for display.
 
@@ -84,7 +80,6 @@ class ChatCLI:
 
         return answer
 
-    @atrace
     async def handle_question(self, question: str):
         """Handle a user question.
 
@@ -109,7 +104,6 @@ class ChatCLI:
             except Exception as e:
                 self.console.print(f"[bold red]Error:[/] {str(e)}")
 
-    @atrace
     async def run(self):
         """Run the CLI interface."""
         try:

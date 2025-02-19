@@ -101,3 +101,32 @@ def get_scraped_docs_dir() -> str:
     """
     scraped_dir = os.path.join(get_data_dir(), "scraped_docs")
     return ensure_directory(scraped_dir)
+
+
+_honeyhive_initialized = False
+
+def init_honeyhive():
+    """Initialize HoneyHive with configuration.
+    
+    This function ensures HoneyHive is only initialized once.
+    """
+    global _honeyhive_initialized
+    
+    if _honeyhive_initialized:
+        return
+        
+    config = load_config()
+    
+    # Print debug info before initialization
+    print("Initializing HoneyHive with:")
+    print(f"API Key: {config['HONEY_HIVE_API_KEY'][:8]}...")  # Only show first 8 chars
+    print(f"Project: {config['AGENT_ID']}")
+
+    # Initialize HoneyHive tracing
+    HoneyHiveTracer.init(
+        api_key=config["HONEY_HIVE_API_KEY"],
+        project=config["AGENT_ID"],
+    )
+    print("HoneyHive initialization successful")
+    
+    _honeyhive_initialized = True
