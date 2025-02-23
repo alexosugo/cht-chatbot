@@ -27,7 +27,7 @@ class DocumentProcessor:
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             length_function=length_function,
-            separators=["\n\n", "\n", ". ", " ", ""],
+            separators=["\n\n", "\n", "(?<=\. )", " ", ""],
         )
 
     def load_scraped_docs(self, filename: Optional[str] = None) -> List[Dict]:
